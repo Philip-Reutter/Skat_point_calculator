@@ -2,8 +2,9 @@ from PySide6.QtWidgets import (
     QDialog, QVBoxLayout, QHBoxLayout,
     QLabel, QLineEdit, QPushButton, QFileDialog
 )
-from PySide6.QtGui import QPixmap
+from PySide6.QtGui import QPixmap, QImage
 from PySide6.QtCore import Qt
+import os
 
 class PlayerSetupDialog(QDialog):
     def __init__(self, max_players=4):
@@ -28,6 +29,9 @@ class PlayerSetupDialog(QDialog):
             # Player name
             name_edit = QLineEdit()
             name_edit.setPlaceholderText(f"Spieler {i+1} Name")
+            name_edit.textChanged.connect(
+                lambda text, idx=i: self.try_load_saved_avatar(idx, text)
+            )
             row.addWidget(name_edit)
             self.name_edits.append(name_edit)
 
@@ -58,22 +62,69 @@ class PlayerSetupDialog(QDialog):
 
         self.setLayout(layout)
 
-    def pick_avatar(self, index):
-        file_path, _ = QFileDialog.getOpenFileName(self, "Avatar auswählen", "", "Images (*.png *.jpg *.bmp)")
-        if file_path:
-            # 1. Load image
-            original_pixmap = QPixmap(file_path)
-            
-            # 2. Store full size image
-            self.original_images[index] = original_pixmap
+    def try_load_saved_avatar(self, index: int, name: str):
+        name = name.strip()
+        if not name:
+            return
 
-            # 3. Create a SMALL copy just for the preview label
-            preview_pixmap = original_pixmap.scaled(
+        # Only load if user has NOT manually selected an avatar yet
+        if self.original_images[index] is not None:
+            return
+
+        pixmap = self._load_saved_avatar(name)
+        if pixmap:
+            self.original_images[index] = pixmap
+
+            preview = pixmap.scaled(
                 40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation
             )
-            
-            self.avatar_labels[index].setPixmap(preview_pixmap)
-            self.avatar_labels[index].setStyleSheet("") # remove border
+            self.avatar_labels[index].setPixmap(preview)
+            self.avatar_labels[index].setStyleSheet("")
+
+    def _avatar_dir(self, name: str) -> str:
+        return os.path.join("avatars", name.lower())
+
+    def _load_saved_avatar(self, name: str) -> QPixmap | None:
+        folder = self._avatar_dir(name)
+        if not os.path.isdir(folder):
+            return None
+
+        for ext in ("png", "jpg", "jpeg"):
+            path = os.path.join(folder, f"avatar.{ext}")
+            if os.path.exists(path):
+                pixmap = QPixmap(path)
+                if not pixmap.isNull():
+                    return pixmap
+        return None
+
+    def _save_avatar(self, name: str, pixmap: QPixmap):
+        folder = self._avatar_dir(name)
+        os.makedirs(folder, exist_ok=True)
+
+        path = os.path.join(folder, "avatar.png")
+        pixmap.save(path, "PNG")
+
+    def pick_avatar(self, index):
+        file_path, _ = QFileDialog.getOpenFileName(self, "Avatar auswählen", "", "Images (*.png *.jpg *.bmp)")
+        if not file_path:
+            return
+
+        original_pixmap = QPixmap(file_path)
+        if original_pixmap.isNull():
+            return
+
+        self.original_images[index] = original_pixmap
+
+        preview_pixmap = original_pixmap.scaled(
+            40, 40, Qt.KeepAspectRatio, Qt.SmoothTransformation
+        )
+        self.avatar_labels[index].setPixmap(preview_pixmap)
+        self.avatar_labels[index].setStyleSheet("") # remove border
+
+        # Save avatar if name exists
+        name = self.name_edits[index].text().strip()
+        if name:
+            self._save_avatar(name, original_pixmap)
 
     def get_players(self):
         result = []
