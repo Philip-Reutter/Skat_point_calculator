@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt
 import os
 
 class PlayerSetupDialog(QDialog):
-    def __init__(self, max_players=4):
+    def __init__(self, max_players=5):
         super().__init__()
         self.setWindowTitle("Spieler einrichten")
         self.max_players = max_players

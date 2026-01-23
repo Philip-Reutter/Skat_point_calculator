@@ -63,7 +63,7 @@ class MainWindow(QMainWindow):
         self.player_avatars = [p.get("avatar") for p in self.players]
         self.games = [] 
         self.total_scores = {p: 0 for p in self.player_names}
-        self.width = 550
+        self.width = 650
         self.height = 800
         self.init_ui()
 
@@ -132,7 +132,7 @@ class MainWindow(QMainWindow):
         self.add_player_btn.setMinimumHeight(40)
         self.add_player_btn.clicked.connect(self.add_new_player)
         layout.addWidget(self.add_player_btn)
-        self.update_add_player_button_visibility() # Show button only if <4 players
+        self.update_add_player_button_visibility() # Show button only if <5 players
 
         central.setLayout(layout)
         self.setCentralWidget(central)
@@ -181,8 +181,8 @@ class MainWindow(QMainWindow):
             self.update_score_table()
 
     def update_add_player_button_visibility(self):
-        """Show button only if <4 players"""
-        self.add_player_btn.setVisible(len(self.players) < 4)
+        """Show button only if <5 players"""
+        self.add_player_btn.setVisible(len(self.players) < 5)
 
     def add_new_player(self):
         # Open PlayerSetupDialog for just 1 player
