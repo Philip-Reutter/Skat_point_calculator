@@ -23,7 +23,6 @@ if __name__ == "__main__":
     main()
 
 # TODO:
-# Spieler während Spiel hinzufügen
 # Bockrunden
 # Spielstand speichern
 # Spiel beenden mit Zusammenfassung

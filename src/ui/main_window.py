@@ -5,6 +5,20 @@ from PySide6.QtWidgets import (
 from PySide6.QtGui import QPixmap, QFont, QPainter, QPainterPath
 from PySide6.QtCore import Qt
 from ui.new_game_dialog import NewGameDialog
+from ui.player_setup_dialog import PlayerSetupDialog
+
+def empty_avatar(diameter: int) -> QPixmap:
+    pm = QPixmap(diameter, diameter)
+    pm.fill(Qt.transparent)
+
+    painter = QPainter(pm)
+    painter.setRenderHint(QPainter.Antialiasing)
+    painter.setBrush(Qt.lightGray)
+    painter.setPen(Qt.NoPen)
+    painter.drawEllipse(0, 0, diameter, diameter)
+    painter.end()
+
+    return pm
 
 def circular_avatar(pixmap: QPixmap, diameter: int) -> QPixmap:
     """
@@ -49,7 +63,6 @@ class MainWindow(QMainWindow):
         self.player_avatars = [p.get("avatar") for p in self.players]
         self.games = [] 
         self.total_scores = {p: 0 for p in self.player_names}
-        self.resize(550, 800)
         self.width = 550
         self.height = 800
         self.init_ui()
@@ -60,44 +73,35 @@ class MainWindow(QMainWindow):
         layout = QVBoxLayout()
         self.table = QTableWidget()
         self.table.verticalHeader().setVisible(False)
-
-        # Hide default header
         self.table.horizontalHeader().setVisible(False)
         self.table.setColumnCount(len(self.players))
-        col_width = 120
+        self.col_width = 120
         for col in range(self.table.columnCount()):
-            self.table.setColumnWidth(col, col_width)
+            self.table.setColumnWidth(col, self.col_width)
 
         self.font = QFont()
         self.font.setPointSize(14)
         self.table.setFont(self.font)
         self.table.verticalHeader().setDefaultSectionSize(30)
 
+        # Avatar and name rows
         self.has_avatar = any(p.get("avatar") and not p["avatar"].isNull() for p in self.players)
+        name_row = 1 if self.has_avatar else 0
+        self.table.setRowCount(2 if self.has_avatar else 1)
 
         if self.has_avatar:
-            name_row = 1
-            self.table.setRowCount(2)
-        else:
-            name_row = 0
-            self.table.setRowCount(1)
-
-        # Track max height for row 0
-        if self.has_avatar:
-
             for col, player in enumerate(self.players):
                 avatar_pixmap = player.get("avatar") 
                 img_label = QLabel()
                 img_label.setAlignment(Qt.AlignCenter)
                 img_label.setStyleSheet("border-bottom: 1px solid #ccc;")
-
                 if avatar_pixmap and not avatar_pixmap.isNull():
-                        avatar_size = col_width  # width of the column
-                        pixmap = circular_avatar(avatar_pixmap, avatar_size)
-                        img_label.setPixmap(pixmap)
-
+                    pixmap = circular_avatar(avatar_pixmap, self.col_width)
+                else:
+                    pixmap = empty_avatar(self.col_width)
+                img_label.setPixmap(pixmap)
                 self.table.setCellWidget(0, col, img_label)
-            self.table.setRowHeight(0, col_width)
+            self.table.setRowHeight(0, self.col_width)
 
         for col, player in enumerate(self.players):
             name_item = QTableWidgetItem(player["name"])
@@ -105,10 +109,8 @@ class MainWindow(QMainWindow):
             header_font = QFont(self.font)
             header_font.setBold(True)
             name_item.setFont(header_font)
-            #name_item.setBackground(Qt.lightGray)
             name_item.setFlags(Qt.ItemIsEnabled)
             self.table.setItem(name_row, col, name_item)
-
         self.table.setRowHeight(name_row, 40)
         layout.addWidget(self.table)
 
@@ -124,6 +126,13 @@ class MainWindow(QMainWindow):
         self.undo_btn.setMinimumHeight(40)
         self.undo_btn.clicked.connect(self.undo_last_game)
         layout.addWidget(self.undo_btn)
+
+        self.add_player_btn = QPushButton("Spieler hinzufügen")
+        self.add_player_btn.setFont(self.font)
+        self.add_player_btn.setMinimumHeight(40)
+        self.add_player_btn.clicked.connect(self.add_new_player)
+        layout.addWidget(self.add_player_btn)
+        self.update_add_player_button_visibility() # Show button only if <4 players
 
         central.setLayout(layout)
         self.setCentralWidget(central)
@@ -170,3 +179,67 @@ class MainWindow(QMainWindow):
         if self.games:
             self.games.pop()  # entfernt das letzte Spiel
             self.update_score_table()
+
+    def update_add_player_button_visibility(self):
+        """Show button only if <4 players"""
+        self.add_player_btn.setVisible(len(self.players) < 4)
+
+    def add_new_player(self):
+        # Open PlayerSetupDialog for just 1 player
+        dialog = PlayerSetupDialog(max_players=1)
+        dialog.setWindowTitle("Neuen Spieler hinzufügen")
+        if dialog.exec() == QDialog.Accepted:
+            new_players = dialog.get_players()
+            if not new_players:
+                return
+
+            new_player = new_players[0]
+            self.players.append(new_player)
+            self.player_names.append(new_player["name"])
+            self.player_avatars.append(new_player.get("avatar"))
+            self.total_scores[new_player["name"]] = 0
+
+            # Add new column in table
+            col_index = self.table.columnCount()
+            self.table.setColumnCount(col_index + 1)
+            self.table.setColumnWidth(col_index, 120)
+
+            avatar_pixmap = new_player.get("avatar")
+            avatar_present = avatar_pixmap and not avatar_pixmap.isNull()
+
+            # If this is the first avatar
+            if avatar_present and not self.has_avatar:
+                self.has_avatar = True
+                self.table.insertRow(0)
+                self.table.setRowHeight(0, self.col_width)
+
+                # Placeholder avatars for existing players
+                for c in range(col_index):
+                    placeholder = QLabel()
+                    placeholder.setAlignment(Qt.AlignCenter)
+                    placeholder.setPixmap(empty_avatar(self.col_width))
+                    self.table.setCellWidget(0, c, placeholder)
+
+            # If avatar row exists
+            if self.has_avatar:
+                img_label = QLabel()
+                img_label.setAlignment(Qt.AlignCenter)
+                if avatar_present:
+                    pixmap = circular_avatar(avatar_pixmap, self.col_width)
+                else:
+                    pixmap = empty_avatar(self.col_width)
+                img_label.setPixmap(pixmap)
+                self.table.setCellWidget(0, col_index, img_label)
+
+            # Add name
+            name_row = 1 if self.has_avatar else 0
+            name_item = QTableWidgetItem(new_player["name"])
+            name_item.setTextAlignment(Qt.AlignCenter)
+            header_font = QFont(self.font)
+            header_font.setBold(True)
+            name_item.setFont(header_font)
+            name_item.setFlags(Qt.ItemIsEnabled)
+            self.table.setItem(name_row, col_index, name_item)
+            self.table.setRowHeight(name_row, 40)
+
+            self.update_add_player_button_visibility()
