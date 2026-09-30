@@ -1,7 +1,10 @@
+import sys
+
 from PySide6.QtWidgets import QApplication, QDialog
+
 from ui.main_window import MainWindow
 from ui.player_setup_dialog import PlayerSetupDialog
-import sys
+
 
 def main():
     app = QApplication(sys.argv)
