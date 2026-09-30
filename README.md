@@ -31,7 +31,7 @@ The core evaluation logic is kept separate from the user interface and validated
 
 ## Dependencies
 
-- Python 3.11+
+- Python 3.11
 - PySide6
 - pytest (for running unit tests)
 
