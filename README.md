@@ -42,5 +42,5 @@ The core evaluation logic is kept separate from the user interface and validated
 ```bash
 conda env create -f environment.yml
 conda activate skat
-python -m src.main
+python src/main.py
 ```
