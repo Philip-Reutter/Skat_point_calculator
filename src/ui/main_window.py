@@ -4,6 +4,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QFont, QPainter, QPainterPath
 from PySide6.QtCore import Qt
+
 from ui.new_game_dialog import NewGameDialog
 from ui.player_setup_dialog import PlayerSetupDialog
 
