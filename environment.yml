@@ -1,6 +1,6 @@
 name: skat
 channels:
-  - default
+  - defaults
   - conda-forge
 dependencies:
   - python=3.11
