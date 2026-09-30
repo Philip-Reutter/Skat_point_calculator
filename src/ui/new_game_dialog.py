@@ -99,14 +99,14 @@ class NewGameDialog(QDialog):
 
         # Base value (spinbox) - simple, starts at 0
         base_layout = QHBoxLayout()
-        self.spiel_label = QLabel("Mit/Ohne:", self)
-        #self.spiel_label.setAlignment(Qt.AlignCenter)
-        self.spiel_label.setStyleSheet("font-size: 14px;")
-        base_layout.addWidget(self.spiel_label)
-        self.spiel_spin = QSpinBox()
-        self.spiel_spin.setFont(self.font)
-        self.spiel_spin.setRange(1, 4)
-        base_layout.addWidget(self.spiel_spin)
+        self.game_label = QLabel("Mit/Ohne:", self)
+        #self.game_label.setAlignment(Qt.AlignCenter)
+        self.game_label.setStyleSheet("font-size: 14px;")
+        base_layout.addWidget(self.game_label)
+        self.game_spin = QSpinBox()
+        self.game_spin.setFont(self.font)
+        self.game_spin.setRange(1, 4)
+        base_layout.addWidget(self.game_spin)
         layout.addLayout(base_layout)
 
         # Checkboxes for Hand, Schneider, Schwarz, Ouvert, Kontra, Re
@@ -148,7 +148,7 @@ class NewGameDialog(QDialog):
         layout.addSpacing(20)
 
         self.all_non_null_boxes = [
-            self.spiel_label, self.spiel_spin, self.schneider_announced_tile, self.schneider_tile,
+            self.game_label, self.game_spin, self.schneider_announced_tile, self.schneider_tile,
             self.schwarz_announced_tile, self.schwarz_tile
         ]
 
@@ -183,7 +183,7 @@ class NewGameDialog(QDialog):
         self.cancel_btn.clicked.connect(self.reject)
         self.game_type_combo.currentTextChanged.connect(self.update_checkboxes)
         self.game_type_combo.currentTextChanged.connect(self.update_score)
-        self.spiel_spin.valueChanged.connect(self.update_score)
+        self.game_spin.valueChanged.connect(self.update_score)
         for tile in [self.hand_tile, self.schneider_announced_tile,self.schneider_tile, self.schwarz_announced_tile,
                      self.schwarz_tile, self.kontra_tile, self.re_tile, self.ouvert_tile]:
             tile.toggled.connect(self.update_score)
@@ -210,7 +210,7 @@ class NewGameDialog(QDialog):
             ouvert=self.ouvert_tile.active,
             schneider=self.schneider_tile.active,
             game_type=self.game_type_combo.currentText(),
-            jacks=self.spiel_spin.value(),
+            jacks=self.game_spin.value(),
             schneider_announced=self.schneider_announced_tile.active,
             schwarz_announced=self.schwarz_announced_tile.active,
             schwarz=self.schwarz_tile.active,
@@ -224,7 +224,7 @@ class NewGameDialog(QDialog):
         return {
             "player": self.player_combo.currentText(),
             "game_type": self.game_type_combo.currentText(),
-            "spiel": self.spiel_spin.value(),
+            "spiel": self.game_spin.value(),
             "hand": self.hand_tile.active,
             "schneider_announced": self.schneider_announced_tile.active,
             "schneider": self.schneider_tile.active,

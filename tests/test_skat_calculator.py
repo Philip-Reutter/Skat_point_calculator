@@ -1,9 +1,8 @@
-import pytest
 from src.logic.skat_calculator import calculate_score
 
 def test_grand_hand_won():
     score = calculate_score(
-        game_type="grand",
+        game_type="Grand",
         jacks=2,
         hand=True,
         schneider_announced=False,
@@ -15,12 +14,12 @@ def test_grand_hand_won():
         re=False,
         won=True
     )
-    assert score == 96  # Must be positive
+    assert score == 96
     print("Grand hand won:", score)
 
 def test_grand_hand_lost():
     score = calculate_score(
-        game_type="grand",
+        game_type="Grand",
         jacks=2,
         hand=True,
         schneider_announced=False,
@@ -32,12 +31,12 @@ def test_grand_hand_lost():
         re=False,
         won=False
     )
-    assert score == -96  # Must be negative
+    assert score == -96
     print("Grand hand lost:", score)
 
 def test_null_ouvert_won():
     score = calculate_score(
-        game_type="null",
+        game_type="Null",
         jacks=0,
         hand=False,
         schneider_announced=False,
@@ -54,7 +53,7 @@ def test_null_ouvert_won():
 
 def test_null_ouvert_lost():
     score = calculate_score(
-        game_type="null",
+        game_type="Null",
         jacks=0,
         hand=False,
         schneider_announced=False,

@@ -177,7 +177,7 @@ class MainWindow(QMainWindow):
 
     def undo_last_game(self):
         if self.games:
-            self.games.pop()  # entfernt das letzte Spiel
+            self.games.pop()  # removes last game
             self.update_score_table()
 
     def update_add_player_button_visibility(self):

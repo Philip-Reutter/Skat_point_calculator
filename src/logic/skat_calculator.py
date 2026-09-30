@@ -13,9 +13,6 @@ def calculate_score(
     re: bool,
     won: bool
 ) -> int:
-    """
-    Calculates points for a game of Skat based on provided parameters.
-    """
     if game_type == "Null":
         if hand and ouvert:
             score = NULL_BASE_VALUES["Null_hand_ouvert"]

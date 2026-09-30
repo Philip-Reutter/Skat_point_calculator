@@ -14,7 +14,6 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-<<<<<<< HEAD
 # Media
 avatars/
 
@@ -22,8 +21,3 @@ avatars/
 dist/
 build/
 *.spec
-=======
-
-# Media
-avatars/
->>>>>>> e0ef22569abe7482f5769aa43f11ad32e016acc2
