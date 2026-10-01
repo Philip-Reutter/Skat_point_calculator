@@ -29,6 +29,29 @@ The core evaluation logic is kept separate from the user interface and validated
 
 ---
 
+## Repository Structure
+
+```text
+Skat_point_calculator/
+├── src/
+│   ├── logic/                         # Core calculation rules & game multipliers
+│   │   ├── base_values.py             # Constant base values for game types
+│   │   └── skat_calculator.py         # Main calculation algorithm & score logic
+│   ├── ui/                            # GUI components & user interface
+│   │   ├── main_window.py             # Primary application window
+│   │   ├── new_game_dialog.py         # Game setup & round configuration dialog
+│   │   └── player_setup_dialog.py     # Player setup interface
+│   └── main.py                        # Application entry point
+├── tests/                             # Automated test suites
+│   └── test_skat_calculator.py        # Unit tests for calculation & scoring rules
+├── .gitignore
+├── environment.yml
+├── pytest.ini                         # Pytest setup & PYTHONPATH configuration
+└── README.md
+```
+
+---
+
 ## Dependencies
 
 - Python 3.11
@@ -42,5 +65,10 @@ The core evaluation logic is kept separate from the user interface and validated
 ```bash
 conda env create -f environment.yml
 conda activate skat
+
+# execute unit tests
+pytest
+
+# run main application
 python src/main.py
 ```
